@@ -1,0 +1,25 @@
+{
+  "name": "DharaOne - Agriculture Climate Resilience",
+  "short_name": "DharaOne",
+  "description": "AI-powered crop intelligence and climate-resilience workspace.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#131B10",
+  "theme_color": "#203015",
+  "icons": [
+    {
+      "src": "/assets/dharaone-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/dharaone-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
