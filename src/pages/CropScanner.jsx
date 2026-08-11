@@ -7,6 +7,16 @@ import { useAuth } from "../contexts/AuthContext.jsx";
 import { storage } from "../lib/firebase.js";
 
 const maxImageSize = 10 * 1024 * 1024;
+const storageTimeoutMs = 8000;
+
+function uploadWithTimeout(imageRef, image) {
+  return Promise.race([
+    uploadBytes(imageRef, image, { contentType: image.type }),
+    new Promise((_, reject) => {
+      window.setTimeout(() => reject(new Error("storage-timeout")), storageTimeoutMs);
+    }),
+  ]);
+}
 
 export default function CropScanner() {
   const inputRef = useRef(null);
@@ -63,19 +73,21 @@ export default function CropScanner() {
     const nextResult = analyzeCropImage(image);
     const cleanName = image.name.replace(/[^a-zA-Z0-9._-]/g, "-");
 
+    saveScanHistory(nextResult);
+    setResult(nextResult);
+    setError("");
+    setSaveStatus("Analysis saved to Crop History. Saving the image to your DharaOne records...");
+
     try {
       const imageRef = ref(storage, `crop-scans/${currentUser.uid}/${Date.now()}-${cleanName}`);
-      await uploadBytes(imageRef, image, { contentType: image.type });
+      await uploadWithTimeout(imageRef, image);
       nextResult.imageUrl = await getDownloadURL(imageRef);
       setSaveStatus("Image saved to your DharaOne crop records.");
     } catch {
       setSaveStatus("Image analysed on this device. Cloud saving needs Firebase Storage to be enabled with signed-in upload rules.");
+    } finally {
+      setSaving(false);
     }
-
-    saveScanHistory(nextResult);
-    setResult(nextResult);
-    setError("");
-    setSaving(false);
   };
 
   return (
